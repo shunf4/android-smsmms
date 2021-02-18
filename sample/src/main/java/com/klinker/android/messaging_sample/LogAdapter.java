@@ -47,7 +47,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String dataClicked = mDataset.get(vh.position);
+                String dataClicked = mDataset.get(vh.getAdapterPosition());
 
                 new AlertDialog.Builder(context)
                         .setMessage(dataClicked)
@@ -62,7 +62,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mTextView.setText(mDataset.get(position));
-        holder.position = position;
     }
 
     @Override
@@ -70,13 +69,12 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
         return mDataset.size();
     }
 
-    public void addItem(String item) {
-        mDataset.add(0, item);
-
+    public void addItem(final String item) {
         // ensure we are on the ui thread
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                mDataset.add(0, item);
                 try {
                     notifyItemInserted(0);
                 } catch (IllegalStateException e) {
@@ -88,7 +86,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mTextView;
-        public int position;
 
         public ViewHolder(TextView v) {
             super(v);

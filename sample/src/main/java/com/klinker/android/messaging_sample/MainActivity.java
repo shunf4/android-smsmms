@@ -56,6 +56,8 @@ public class MainActivity extends Activity {
 
     private LogAdapter logAdapter;
 
+    private boolean isPictureEnabled = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,7 +129,7 @@ public class MainActivity extends Activity {
         });
 
         fromField.setText(Utils.getMyPhoneNumber(this));
-        toField.setText(Utils.getMyPhoneNumber(this));
+        // toField.setText(Utils.getMyPhoneNumber(this));
 
         imageToSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,6 +142,13 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 sendMessage();
+            }
+        });
+        sendButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                sendMessageNonSystem();
+                return true;
             }
         });
 
@@ -155,7 +164,7 @@ public class MainActivity extends Activity {
         Log.setLogListener(new OnLogListener() {
             @Override
             public void onLogged(String tag, String message) {
-                //logAdapter.addItem(tag + ": " + message);
+                logAdapter.addItem(tag + ": " + message);
             }
         });
     }
@@ -170,11 +179,11 @@ public class MainActivity extends Activity {
     }
 
     private void toggleSendImage() {
-        if (imageToSend.isEnabled()) {
-            imageToSend.setEnabled(false);
+        if (isPictureEnabled) {
+            isPictureEnabled = false;
             imageToSend.setAlpha(0.3f);
         } else {
-            imageToSend.setEnabled(true);
+            isPictureEnabled = true;
             imageToSend.setAlpha(1.0f);
         }
     }
@@ -184,10 +193,41 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 com.klinker.android.send_message.Settings sendSettings = new com.klinker.android.send_message.Settings();
-                sendSettings.setMmsc(settings.getMmsc());
-                sendSettings.setProxy(settings.getMmsProxy());
-                sendSettings.setPort(settings.getMmsPort());
+//                sendSettings.setMmsc(settings.getMmsc());
+//                sendSettings.setProxy(settings.getMmsProxy());
+//                sendSettings.setPort(settings.getMmsPort());
+//                sendSettings.setUseSystemSending(true);
+                sendSettings.setMmsc("http://mmsc.monternet.com");
+                sendSettings.setProxy("10.0.0.172");
+                sendSettings.setPort("80");
                 sendSettings.setUseSystemSending(true);
+
+                Transaction transaction = new Transaction(MainActivity.this, sendSettings);
+
+                Message message = new Message(messageField.getText().toString(), toField.getText().toString());
+
+                if (imageToSend.isEnabled()) {
+                    message.setImage(BitmapFactory.decodeResource(getResources(), R.drawable.android));
+                }
+
+                transaction.sendNewMessage(message, Transaction.NO_THREAD_ID);
+            }
+        }).start();
+    }
+
+    public void sendMessageNonSystem() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                com.klinker.android.send_message.Settings sendSettings = new com.klinker.android.send_message.Settings();
+//                sendSettings.setMmsc(settings.getMmsc());
+//                sendSettings.setProxy(settings.getMmsProxy());
+//                sendSettings.setPort(settings.getMmsPort());
+//                sendSettings.setUseSystemSending(true);
+                sendSettings.setMmsc("http://mmsc.monternet.com");
+                sendSettings.setProxy("10.0.0.172");
+                sendSettings.setPort("80");
+                sendSettings.setUseSystemSending(false);
 
                 Transaction transaction = new Transaction(MainActivity.this, sendSettings);
 

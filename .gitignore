@@ -8,3 +8,5 @@ gen/
 *.iml
 **/.DS_STORE
 local.properties
+**/sign.gradle
+**/*.jks

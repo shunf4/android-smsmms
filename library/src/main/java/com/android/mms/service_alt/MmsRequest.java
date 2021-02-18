@@ -189,16 +189,20 @@ public abstract class MmsRequest {
                     try {
                         ApnSettings apn = null;
                         try {
-                            apn = ApnSettings.load(context, apnName, mSubId);
-                        } catch (ApnException e) {
-                            // If no APN could be found, fall back to trying without the APN name
-                            if (apnName == null) {
-                                // If the APN name was already null then don't need to retry
-                                throw (e);
+                            try {
+                                apn = ApnSettings.load(context, apnName, mSubId);
+                            } catch (ApnException e) {
+                                // If no APN could be found, fall back to trying without the APN name
+                                if (apnName == null) {
+                                    // If the APN name was already null then don't need to retry
+                                    throw (e);
+                                }
+                                Log.i(TAG, "MmsRequest: No match with APN name:"
+                                        + apnName + ", try with no name");
+                                apn = ApnSettings.load(context, null, mSubId);
                             }
-                            Log.i(TAG, "MmsRequest: No match with APN name:"
-                                    + apnName + ", try with no name");
-                            apn = ApnSettings.load(context, null, mSubId);
+                        } catch (java.lang.SecurityException e) {
+                            apn = new ApnSettings("http://mmsc.monternet.com", "10.0.0.172", 80, "CMCCDEBUGAPN");
                         }
                         Log.i(TAG, "MmsRequest: using " + apn.toString());
                         response = doHttp(context, networkManager, apn);

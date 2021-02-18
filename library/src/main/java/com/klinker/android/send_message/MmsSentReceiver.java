@@ -20,7 +20,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.Telephony;
+import android.telephony.SmsManager;
 
 import com.google.android.mms.util_alt.SqliteWrapper;
 import com.klinker.android.logger.Log;
@@ -37,7 +39,17 @@ public class MmsSentReceiver extends StatusUpdatedReceiver {
 
     @Override
     public void updateInInternalDatabase(Context context, Intent intent, int resultCode) {
-        Log.v(TAG, "MMS has finished sending, marking it as so, in the database");
+        Log.v(TAG, "MMS has finished sending, marking it as so, in the database. resultCode: " + resultCode + ", intent=" + intent);
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            StringBuilder builder = new StringBuilder("Extras:\n");
+            for (String key : extras.keySet()) { //extras is the Bundle containing info
+                Object value = extras.get(key); //get the current object
+                builder.append(key).append(": ").append(value).append("\n"); //add the key-value pair to the
+            }
+            Log.v(TAG, builder.toString()); //log the data or use it as needed.
+        }
+
 
         Uri uri = Uri.parse(intent.getStringExtra(EXTRA_CONTENT_URI));
         Log.v(TAG, uri.toString());
